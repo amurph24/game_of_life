@@ -1,5 +1,5 @@
 CC=gcc
-CCFLAGS=-Wall -Wextra -Wpedantic
+CCFLAGS=-Wall -Wextra -Wpedantic -Werror
 SOURCEDIR=source
 BUILDDIR=build
 INCLUDEDIR=include

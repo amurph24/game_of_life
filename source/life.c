@@ -18,6 +18,7 @@ char* initialise_grid(int height, int width) {
 	return mem;
 }
 
+// TODO: print each char without flushing the buffer
 void print_grid(const char* const grid, int height, int width) {
 	char* buffer = initialise_grid(height, width+1);
 	char* buff_p = buffer;
@@ -85,13 +86,11 @@ int calc_num_alive_neighbours(const char* const grid, int height, int width, int
 	return count;
 }
 
-// you must free this pointer
-char* calc_next_grid_state(const char* const grid, int height, int width){
-	char* next_grid = initialise_grid(height, width);
+char* calc_next_grid_state(const char* const current_grid, char* const next_grid, int height, int width){
 	for(int i = 0; i < height*width; i++) {
 		// 4. any dead cells with three neighbours becomes a live cell
-		if (grid[i] == DEAD_CHAR) {
-			if (calc_num_alive_neighbours(grid, height, width, i) == 3)
+		if (current_grid[i] == DEAD_CHAR) {
+			if (calc_num_alive_neighbours(current_grid, height, width, i) == 3)
 				next_grid[i] = ALIVE_CHAR;
 			else
 				next_grid[i] = DEAD_CHAR;
@@ -99,7 +98,7 @@ char* calc_next_grid_state(const char* const grid, int height, int width){
 		}
 
 		// cell 'i' is alive
-		switch(calc_num_alive_neighbours(grid, height, width, i)) {
+		switch(calc_num_alive_neighbours(current_grid, height, width, i)) {
 			case 0: ;
 			case 1: ;
 			case 4: ;
@@ -118,14 +117,6 @@ char* calc_next_grid_state(const char* const grid, int height, int width){
 	return next_grid;
 }
 
-// we can't move the pointer, but we can change its contents
-void rules_of_life(char* const grid, int height, int width){
-	char* new_grid = calc_next_grid_state(grid, height, width);
-	strncpy(grid, new_grid, sizeof(char)*height*width+1);
-	free(new_grid);
-	return;
-}
-
 int life(int coords[][2], int count) {
 	// this is where we store the representation
 	char* grid = initialise_grid(GRID_HEIGHT, GRID_WIDTH);
@@ -139,12 +130,18 @@ int life(int coords[][2], int count) {
 		grid[(ycoord-1)*GRID_WIDTH + xcoord - 1] = ALIVE_CHAR;
 	}
 
+	char* grid2 = initialise_grid(GRID_HEIGHT, GRID_WIDTH);
+
 	while(1) {
 		system("clear");
 		print_grid(grid, GRID_HEIGHT, GRID_WIDTH);
-		usleep(0.02*1000000);
-		rules_of_life(grid, GRID_HEIGHT, GRID_WIDTH);
-	}
+		usleep(0.05*1000000);
+		calc_next_grid_state(grid, grid2, GRID_HEIGHT, GRID_WIDTH);
 
+		system("clear");
+		print_grid(grid2, GRID_HEIGHT, GRID_WIDTH);
+		usleep(0.05*1000000);
+		calc_next_grid_state(grid2, grid, GRID_HEIGHT, GRID_WIDTH);
+	}
 	return 0;
 }
